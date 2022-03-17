@@ -1,24 +1,42 @@
 from ..items import StockItem
 
+import logging
 import scrapy
 import json
+from datetime import datetime
+
+from scrapy.utils.log import configure_logging
 
 BASE_URL = 'https://api.stocktwits.com/api/2/streams/symbol/TSLA.json?max='
 
 
-class TSLASpider(scrapy.Spider):
-    name = "TSLA"
+class StockSpider(scrapy.Spider):
+    name = "stock"
+    configure_logging(install_root_handler=False)
+    logging.basicConfig(
+        filename=f'logs/{datetime.now().strftime("%Y-%M-%d-%H-%M-%S")}.txt',
+        format='%(levelname)s: %(message)s',
+    )
 
     def __init__(self):
         self.count = 0
         self.data_limit = 100
+        self.NASDQ_top10 = [
+            'AAPL',
+            'MSFT',
+            'GOOG',
+            'GOOGL',
+            'AMZN',
+            'TSLA',
+            'NVDA',
+            'FB',
+            'TSM',
+            'UNH'
+        ]
 
     def start_requests(self):
-        # TODO keep crawl use message ID after max
-        # https://api.stocktwits.com/api/2/streams/symbol/TSLA.json?filter=top&limit=20&max=441700147
         urls = [
-            'https://api.stocktwits.com/api/2/streams/symbol/TSLA.json'
-        ]
+            f'https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json' for symbol in self.NASDQ_top10]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -27,23 +45,25 @@ class TSLASpider(scrapy.Spider):
 
         data = json.loads(response.text)
         messages = data['messages']
-        self.messages += messages
 
         for message in messages:
             sentiment = message['entities']['sentiment']
             if sentiment:
                 sentiment = sentiment['basic']
 
+            # Info filter
             items['message_id'] = message['id']
             items['body'] = message['body']
-            items['sentiment'] = message['entities']['sentiment'] 
+            items['sentiment'] = message['entities']['sentiment']
             items['created_at'] = message['created_at']
 
             yield items
-        
+
         self.count += len(messages)
 
         if self.count < self.data_limit:
             new_max = messages[-1]['id']
             new_url = BASE_URL + str(new_max)
             yield scrapy.Request(url=new_url, callback=self.parse)
+        else:
+            self.count = 0
