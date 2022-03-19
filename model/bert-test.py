@@ -1,11 +1,10 @@
-import os
-import shutil
+from transformers import AlbertTokenizer, AlbertModel
+import torch
 
-import tensorflow as tf
-import tensorflow_hub as hub
-import tensorflow_text as text
-from official.nlp import optimization  # to create AdamW optimizer
+tokenizer = AlbertTokenizer.from_pretrained("albert-base-v2")
+model = AlbertModel.from_pretrained("albert-base-v2")
 
-import matplotlib.pyplot as plt
+inputs = tokenizer("Hello, my dog is cute", return_tensors="pt")
+outputs = model(**inputs)
 
-tf.get_logger().setLevel('ERROR')
+last_hidden_states = outputs.last_hidden_state

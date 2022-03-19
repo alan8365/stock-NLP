@@ -18,8 +18,8 @@ class StockPipeline:
         self.file = None
 
     def open_spider(self, spider):
-        self.file = open(f'data/{datetime.now().strftime("%Y-%M-%d-%H-%M-%S")}.json', 'wb')
-        self.exporter = JsonItemExporter(self.file)
+        self.file = open(f'data/{datetime.now().strftime("%Y-%m-%dT%H%M%S")}.json', 'wb')
+        self.exporter = JsonItemExporter(self.file, encoding='utf-8')
         self.exporter.start_exporting()
 
     def close_spider(self, spider):

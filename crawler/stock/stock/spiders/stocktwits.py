@@ -14,13 +14,14 @@ class StockSpider(scrapy.Spider):
     name = "stock"
     configure_logging(install_root_handler=False)
     logging.basicConfig(
-        filename=f'logs/{datetime.now().strftime("%Y-%M-%d-%H-%M-%S")}.txt',
+        filename=f'logs/{datetime.now().strftime("%Y-%m-%dT%H%M%S")}.txt',
         format='%(levelname)s: %(message)s',
+        encoding='utf-8'        
     )
 
     def __init__(self):
         self.count = 0
-        self.data_limit = 100
+        self.data_limit = 10000
         self.NASDQ_top10 = [
             'AAPL',
             'MSFT',
