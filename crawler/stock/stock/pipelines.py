@@ -2,7 +2,9 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+import re
 
+from html import unescape
 from datetime import datetime
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
@@ -30,8 +32,12 @@ class StockPipeline:
         if item['sentiment']:
             item['sentiment'] = item['sentiment']['basic']
 
-        # if item['body'][0] == item['body'][-1] == '"':
-        #     item['body'] = item['body'][1:-1]
+        item['body'] = unescape(item['body']) 
+
+        pattern = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+        item['body']= re.sub(pattern, '',item['body'])      
+        if len(item['body']) < 10:
+            raise DropItem(f"Item too short: {item!r}")
 
         adapter = ItemAdapter(item)
         if adapter['message_id'] in self.ids_seen:
