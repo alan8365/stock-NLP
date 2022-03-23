@@ -5,4 +5,4 @@ runs/
 .idea/
 
 *.pyc
-*_trainer/
+*trainer/
