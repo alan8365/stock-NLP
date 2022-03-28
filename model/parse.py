@@ -6,52 +6,6 @@ import re
 import pandas as pd
 
 
-def normalizeToken(token):
-    lowercased_token = token.lower()
-    if token.startswith("@"):
-        return "@USER"
-    elif lowercased_token.startswith("http") or lowercased_token.startswith("www"):
-        return "HTTPURL"
-    elif len(token) == 1:
-        return demojize(token)
-    else:
-        if token == "’":
-            return "'"
-        elif token == "…":
-            return "..."
-        else:
-            return token
-
-
-def normalizeTweet(tweet, tokenizer):
-    tokens = tokenizer.tokenize(tweet.replace("’", "'").replace("…", "..."))
-    normTweet = " ".join([normalizeToken(token) for token in tokens])
-
-    normTweet = (
-        normTweet.replace("cannot ", "can not ")
-        .replace("n't ", " n't ")
-        .replace("n 't ", " n't ")
-        .replace("ca n't", "can't")
-        .replace("ai n't", "ain't")
-    )
-    normTweet = (
-        normTweet.replace("'m ", " 'm ")
-        .replace("'re ", " 're ")
-        .replace("'s ", " 's ")
-        .replace("'ll ", " 'll ")
-        .replace("'d ", " 'd ")
-        .replace("'ve ", " 've ")
-    )
-    normTweet = (
-        normTweet.replace(" p . m .", "  p.m.")
-        .replace(" p . m ", " p.m ")
-        .replace(" a . m .", " a.m.")
-        .replace(" a . m ", " a.m ")
-    )
-
-    return " ".join(normTweet.split())
-
-
 def data_loading(url):
     with open(url, 'r', encoding='utf-8') as f:
         # data = json.loads(f.read())
@@ -91,6 +45,12 @@ def mask_data_loading(url, tokenizer):
             for symbol in symbol_list:
                 symbols.add(symbol)
         return data, symbols
+
+
+def normalize_except_compony(sentense, tokenizer):
+    sentense = re.split(r'(\$[A-Z]+)', sentense)
+    a = [tokenizer.normalizeTweet(i) if i.find('$') == -1 else i for i in sentense]
+    sentense = " ".join(a)
 
 
 if __name__ == "__main__":
