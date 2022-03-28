@@ -32,10 +32,10 @@ class StockPipeline:
         if item['sentiment']:
             item['sentiment'] = item['sentiment']['basic']
 
-        item['body'] = unescape(item['body']) 
+        item['body'] = unescape(item['body'])
 
-        pattern = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-        item['body']= re.sub(pattern, '',item['body'])      
+        # pattern = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+        # item['body']= re.sub(pattern, 'HTTPURL',item['body'])
         if len(item['body']) < 10:
             raise DropItem(f"Item too short: {item!r}")
 

@@ -16,7 +16,7 @@ class StockSpider(scrapy.Spider):
     logging.basicConfig(
         filename=f'logs/{datetime.now().strftime("%Y-%m-%dT%H%M%S")}.txt',
         format='%(levelname)s: %(message)s',
-        encoding='utf-8'        
+        encoding='utf-8'
     )
 
     def __init__(self):
