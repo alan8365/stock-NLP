@@ -51,6 +51,7 @@ def normalize_except_compony(sentense, tokenizer):
     sentense = re.split(r'(\$[A-Z]+)', sentense)
     a = [tokenizer.normalizeTweet(i) if i.find('$') == -1 else i for i in sentense]
     sentense = " ".join(a)
+    return sentense
 
 
 if __name__ == "__main__":
