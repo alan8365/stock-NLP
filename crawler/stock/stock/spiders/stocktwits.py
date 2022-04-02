@@ -21,7 +21,7 @@ class StockSpider(scrapy.Spider):
 
     def __init__(self):
         self.count = 0
-        self.data_limit = 100
+        self.data_limit = 100000
         self.NASDQ_top10 = [
             'AAPL',
             'MSFT',
