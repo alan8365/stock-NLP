@@ -30,7 +30,7 @@ def data_loading(url, is_under_sampling=False):
         return data
 
 
-def mask_data_loading(url, tokenizer):
+def mask_data_loading(url, tokenizer, symbol_mask=True):
     def stock_symbol_mask(sentense):
         pattern = r'\$[A-Z]*'
         result = re.sub(pattern, tokenizer.mask_token, sentense)
@@ -43,7 +43,8 @@ def mask_data_loading(url, tokenizer):
         data = data.loc[df['sentiment'].notnull()]
         data['sentiment'] = pd.Categorical(data['sentiment'])
         data['body'] = data['body'].apply(normalize_except_compony, args=(tokenizer, ))
-        data['sentense'] = data['body'].map(stock_symbol_mask)
+        if symbol_mask:
+            data['sentense'] = data['body'].map(stock_symbol_mask)
         data['labels'] = data['body']
         symbols = set()
         for symbol_list in data['body'].str.findall(r'\$[A-Z]+'):
