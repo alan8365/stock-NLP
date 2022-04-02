@@ -6,7 +6,7 @@ import re
 import pandas as pd
 
 
-def data_loading(url):
+def data_loading(url, is_under_sampling=False):
     with open(url, 'r', encoding='utf-8') as f:
         # data = json.loads(f.read())
         df = pd.read_json(f)
@@ -17,17 +17,22 @@ def data_loading(url):
         data['label'] = data['sentiment'].cat.codes
         data = data.rename(columns={'sentiment': 'labels', 'body': 'sentense'})
 
-        symbols = set()
-        for symbol_list in data['sentense'].str.findall(r'\$[A-Z]+'):
-            for symbol in symbol_list:
-                symbols.add(symbol)
-        return data, symbols
+        # imbalanced sampling
+        if is_under_sampling:
+            count_class_0, count_class_1 = data['label'].value_counts()
+            small_count = min(count_class_0, count_class_1)
+            data_class_0 = data[data['label'] == 0].sample(small_count)
+            data_class_1 = data[data['label'] == 1].sample(small_count)
+            data = pd.concat([data_class_0, data_class_1], axis=0)
+
+            # data['label'].value_counts().plot(kind='bar', title='Count (label)', color=['#1f77b4', '#ff7f0e'])
+
+        return data
 
 
 def mask_data_loading(url, tokenizer):
     def stock_symbol_mask(sentense):
         pattern = r'\$[A-Z]*'
-        # symbol += re.findall(pattern, sentense)
         result = re.sub(pattern, tokenizer.mask_token, sentense)
 
         return result
@@ -37,9 +42,9 @@ def mask_data_loading(url, tokenizer):
         data = df.copy()
         data = data.loc[df['sentiment'].notnull()]
         data['sentiment'] = pd.Categorical(data['sentiment'])
+        data['body'] = data['body'].apply(normalize_except_compony, args=(tokenizer, ))
         data['sentense'] = data['body'].map(stock_symbol_mask)
         data['labels'] = data['body']
-
         symbols = set()
         for symbol_list in data['body'].str.findall(r'\$[A-Z]+'):
             for symbol in symbol_list:
