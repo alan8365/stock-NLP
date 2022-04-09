@@ -45,6 +45,8 @@ def mask_data_loading(url, tokenizer, symbol_mask=True):
         data['body'] = data['body'].apply(normalize_except_compony, args=(tokenizer, ))
         if symbol_mask:
             data['sentense'] = data['body'].map(stock_symbol_mask)
+        else:
+            data['sentense'] = data['body']
         data['labels'] = data['body']
         symbols = set()
         for symbol_list in data['body'].str.findall(r'\$[A-Z]+'):
